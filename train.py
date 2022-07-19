@@ -26,30 +26,44 @@ def format_image_directory(df, dir):
 
 # image = imread_from_blob(res.content)
 
-df = pd.read_json(
-    DATA_DIRECTORY + '/labels.json').T.set_index('filename')
-df['state'] = df.file_attributes.apply(lambda x: x['state']
-                                       if 'state' in x else None)
+train_data = tf.keras.preprocessing.image_dataset_from_directory(
+    DATA_DIRECTORY,
+    labels='inferred',
+    label_mode='categorical',
+    validation_split=0.2,
+    seed=6604,
+    subset='training'
+)
 
-file_order = None
-for r, d, f in os.walk(DATA_DIRECTORY + '/images'):
-    file_order = f
+val_data = tf.keras.preprocessing.image_dataset_from_directory(
+    DATA_DIRECTORY,
+    labels='inferred',
+    label_mode='categorical',
+    validation_split=0.2,
+    seed=6604,
+    subset='validation'
+)
+
+for image_batch, labels_batch in train_data:
+    print(image_batch.shape)
+    print(labels_batch.shape)
     break
 
-labels = df.state.reindex(file_order).dropna()
-
-data = tf.keras.preprocessing.image_dataset_from_directory(DATA_DIRECTORY,
-                                                           labels='inferred',
-                                                           label_mode='categorical')
-
 model = tf.keras.Sequential([
+    tf.keras.layers.Rescaling(1./255),
     tf.keras.layers.Flatten(input_shape=(256, 256)),
     tf.keras.layers.Dense(256, activation='relu'),
+    tf.keras.layers.Dropout(0.4),
     tf.keras.layers.Dense(64, activation='relu'),
-    tf.keras.layers.Dense(2)
+    tf.keras.layers.Dense(4)
 ])
 
 model.compile(optimizer='adam',
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(
-                  from_logits=True),
+              loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
+
+model.fit(
+    train_data,
+    validation_data=val_data,
+    epochs=3
+)
