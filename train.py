@@ -4,6 +4,7 @@ import pandas as pd
 # from imread import imread_from_blob
 import os
 from os.path import isdir
+from datetime import time, datetime
 
 DATA_DIRECTORY = 'trafficstate'
 
@@ -44,14 +45,15 @@ val_data = tf.keras.preprocessing.image_dataset_from_directory(
     subset='validation'
 )
 
-for image_batch, labels_batch in train_data:
-    print(image_batch.shape)
-    print(labels_batch.shape)
-    break
-
 model = tf.keras.Sequential([
     tf.keras.layers.Rescaling(1./255),
-    tf.keras.layers.Flatten(input_shape=(256, 256)),
+    tf.keras.layers.Conv2D(10, 3, input_shape=(256, 256)),
+    tf.keras.layers.MaxPooling2D(),
+    tf.keras.layers.Conv2D(10, 3),
+    tf.keras.layers.MaxPooling2D(),
+    tf.keras.layers.Conv2D(10, 3),
+    tf.keras.layers.MaxPooling2D(),
+    tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(256, activation='relu'),
     tf.keras.layers.Dropout(0.4),
     tf.keras.layers.Dense(64, activation='relu'),
@@ -65,5 +67,7 @@ model.compile(optimizer='adam',
 model.fit(
     train_data,
     validation_data=val_data,
-    epochs=3
+    epochs=5
 )
+
+model.save('model/' + datetime.now().isoformat())
