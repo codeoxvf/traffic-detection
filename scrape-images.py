@@ -2,7 +2,7 @@ from imread import imread_from_blob
 from requests import get
 from datetime import time, datetime
 
-DATA_DIRECTORY = 'data'
+DATA_DIRECTORY = 'sample'
 INPUT_WIDTH, INPUT_HEIGHT = 320, 240
 
 curr_time = datetime.now().time()
