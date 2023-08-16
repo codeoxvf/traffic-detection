@@ -22,6 +22,14 @@ def rm_file(filename):
 SRC_DIR = 'sample'
 DEST_DIR = 'data'
 
+# NOTE: make sure no duplicate initial letter
+CLASSES = ['empty', 'light', 'heavy']
+
+try:
+    [os.makedirs(DEST_DIR + '/' + c[0]) for c in CLASSES]
+except FileExistsError:
+    pass
+
 # load images
 images = []
 image_names = []
@@ -34,21 +42,22 @@ for root, dirs, files in os.walk(SRC_DIR):
 
 # display images
 for i in range(len(images)):
+    print(i, len(images))
     plt.title(image_names[i])
 
     plt.xticks([])
     plt.yticks([])
     plt.imshow(images[i], interpolation='none')
 
-    q_btn = Button(plt.axes([0.2, 0.1, 0.1, 0.05]), 'Q')
-    q_btn.on_clicked(move_file(image_names[i],
-                               DEST_DIR + '/q'))
+    space = 0.8 / (len(CLASSES)+1)
 
-    f_btn = Button(plt.axes([0.7, 0.1, 0.1, 0.05]), 'F')
-    f_btn.on_clicked(move_file(image_names[i],
-                               DEST_DIR + '/f'))
+    btns = []
+    for j, cl in enumerate(CLASSES):
+        btns.append(Button(plt.axes(
+            [0.1 + space*j, 0.1, 0.1, 0.05]), cl))
+        btns[-1].on_clicked(move_file(image_names[i], DEST_DIR + '/' + cl[0]))
 
-    b_btn = Button(plt.axes([0.45, 0.1, 0.1, 0.05]), 'B')
+    b_btn = Button(plt.axes([0.45, 0.2, 0.1, 0.05]), 'Remove')
     b_btn.on_clicked(rm_file(image_names[i]))
 
     plt.show()
