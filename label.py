@@ -1,3 +1,4 @@
+from get_images import get_images
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import os
@@ -31,6 +32,8 @@ except FileExistsError:
     pass
 
 # load images
+get_images()
+
 images = []
 image_names = []
 
